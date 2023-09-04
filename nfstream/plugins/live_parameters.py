@@ -1,28 +1,7 @@
-"""
-------------------------------------------------------------------------------------------------------------------------
-plugin.py
-Copyright (C) 2019-22 - NFStream Developers
-This file is part of NFStream, a Flexible Network Data Analysis Framework (https://www.nfstream.org/).
-NFStream is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later
-version.
-NFStream is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
-You should have received a copy of the GNU Lesser General Public License along with NFStream.
-If not, see <http://www.gnu.org/licenses/>.
-------------------------------------------------------------------------------------------------------------------------
-"""
+from nfstream import NFPlugin
 
 
-class NFPlugin(object):
-    """ NFPlugin class: Main entry point to extend NFStream """
-    def __init__(self, **kwargs):
-        """
-        NFPlugin Parameters:
-        kwargs : user defined named arguments that will be stored as Plugin attributes
-        """
-        for key, value in kwargs.items():
-            setattr(self, key, value)
+class LIVE_PARAMETERS(NFPlugin):
 
     def on_init(self, packet, flow): #ON INIT MOGE DAC JAKIES OZNACZENIE ZE TO BEDZIE KOMUNIKACJA ZLOSLIWA
         """
@@ -45,6 +24,15 @@ class NFPlugin(object):
                     flow.udps.packet_40_count += 1
         ----------------------------------------------------------------
         """
+        print(f"Protocol: {flow.protocol}, IP Src: {flow.src_ip}, IP Dst: {flow.dst_ip}, Port Src: {flow.src_port}, Port Dst: {flow.dst_port}")
+        print("Total packets:", flow.bidirectional_packets)
+        print("Total bytes:", flow.bidirectional_bytes)
+
+        try:
+            print(f'Bidirectional_mean_piat: {flow.bidirectional_mean_piat_ms}')
+        except:
+            print('Statistical analysis error')
+
 
 
     def on_expire(self, flow):

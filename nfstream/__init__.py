@@ -22,3 +22,8 @@ from .plugin import NFPlugin
 __author__ = """Zied Aouini"""
 __email__ = 'aouinizied@gmail.com'
 __version__ = '6.5.4'
+
+# Version verification function:
+def verify_version():
+    return "Custom NFStream version"
+

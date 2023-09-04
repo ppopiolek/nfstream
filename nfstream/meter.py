@@ -52,6 +52,18 @@ class NFCache(OrderedDict):
 
     def get_lru_key(self):
         return next(iter(self))
+    
+    # _ADDED:
+    #def print_attr(self): 
+    #    for key, flow in self.items():
+    #        if (flow.bidirectional_packets >= 2):
+    #            print(f"Protocol: {flow.protocol}, IP Src: {flow.src_ip}, IP Dst: {flow.dst_ip}, Port Src: {flow.src_port}, Port Dst: {flow.dst_port}")
+    #            print("Total packets:", flow.bidirectional_packets)
+    #            print("Total bytes:", flow.bidirectional_bytes)
+    #            print(f'Bidirectional_min_piat: {flow.bidirectional_min_piat_ms}')
+    #            #tutaj reszta wartosci zaraz
+    #            print("---------------------------")
+
 
 
 def meter_scan(meter_tick, cache, idle_timeout, channel, udps, sync, n_dissections, statistics, splt, ffi, lib,
@@ -162,6 +174,7 @@ def consume(packet, cache, active_timeout, idle_timeout, channel, ffi, lib, udps
         except OSError:
             print("WARNING: Failed to allocate memory space for flow creation. Flow creation aborted.")
             state = 0
+    #cache.print_attr() #_ADDED
     return state
 
 
