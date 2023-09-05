@@ -15,12 +15,8 @@ If not, see <http://www.gnu.org/licenses/>.
 
 
 class NFPlugin(object):
-    """ NFPlugin class: Main entry point to extend NFStream """
-    def __init__(self, **kwargs):
-        """
-        NFPlugin Parameters:
-        kwargs : user defined named arguments that will be stored as Plugin attributes
-        """
+    def __init__(self, live_data=None, **kwargs):
+        self.live_data = live_data #_ADDED PARAMETER FOR LIVE DATA OBJECT
         for key, value in kwargs.items():
             setattr(self, key, value)
 
