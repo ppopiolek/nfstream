@@ -20,6 +20,7 @@ class LIVE_PARAMETERS(NFPlugin):
             "bidirectional_packets": flow.bidirectional_packets,
             #PACKET SIZEŚ
             "bidirectional_bytes": flow.bidirectional_bytes,
+            
 
             #ew. pozostałe parametry potrzebne do opracowanych heurystyk
 
@@ -32,6 +33,7 @@ class LIVE_PARAMETERS(NFPlugin):
 
         })
 
+        
         #SPRAWDZENIE ILE RAZY BEDA DWA PAKIETY WE FLOW - TO WSZYSTKO SLUZY TYLKO DO TESTOWANIA PROJEKTOWANEGO ROZWIAZANIA
         if flow.bidirectional_packets == 2:
                 print(flow_hash)

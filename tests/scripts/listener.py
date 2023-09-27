@@ -28,7 +28,9 @@ def streamer_function(live_data):
         pass
     print("[INFO] NFStreamer has finished processing.")
 
-def simulate_handshake(src_ip, dst_ip):
+def simulate_handshake(src_ip, dst_ip, src_port, dst_port, proto, vlan_id, tunnel_id):
+    #utworz nowy pakiet w scapy z podanymi parametrami, dodatkowo zadbaj o reszte jak checksumy itp.
+    
     pass
 
 if __name__ == '__main__':
@@ -49,7 +51,8 @@ if __name__ == '__main__':
             def do_handshake():
                 return (flow_data['bidirectional_packets']>= 2)
             if (do_handshake()):
-                simulate_handshake()
+                #simulate_handshake(flow_data['src_ip'], flow_data['dst_ip'], flow_data['src_port'], flow_data['dst_port'], flow_data['protocol'], flow_data['vlan_id'], flow_data['tunnel_id'])
+                pass
 
             #print(f"Flow Hash: {flow_hash}")
             #print(f"Bi-directional Packets: {flow_data['bidirectional_packets']}")
