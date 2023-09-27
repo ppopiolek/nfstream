@@ -23,10 +23,13 @@ class LiveData:
 
 def streamer_function(live_data):
     print("[INFO] Starting NFStreamer...")
-    streamer = NFStreamer(source="en0", udps=[plugins.LIVE_PARAMETERS(live_data=live_data)], statistical_analysis=True)
+    streamer = NFStreamer(source="en1", udps=[plugins.LIVE_PARAMETERS(live_data=live_data)], statistical_analysis=True)
     for flow in streamer:
         pass
     print("[INFO] NFStreamer has finished processing.")
+
+def simulate_handshake(src_ip, dst_ip):
+    pass
 
 if __name__ == '__main__':
     live_data = LiveData()
@@ -36,12 +39,18 @@ if __name__ == '__main__':
 
     print("[INFO] Entering main loop...")
     while True:
-        time.sleep(10)
-        print("[INFO] Fetching current live flows...")
+        #time.sleep(10) - to by zostało jeśli sprawdzenie miałoby się odbywać co jakiś czas
+        #print("[INFO] Fetching current live flows...")
         current_flows = live_data.get_all()
-        print(f"[DEBUG] Total number of live flows: {len(current_flows)}")
-        
+        #print(f"[DEBUG] Total number of live flows: {len(current_flows)}")
+
         for flow_hash, flow_data in current_flows.items():
-            print(f"Flow Hash: {flow_hash}")
-            print(f"Bi-directional Packets: {flow_data['bidirectional_packets']}")
-            print("-------------------------------")
+            pass
+            def do_handshake():
+                return (flow_data['bidirectional_packets']>= 2)
+            if (do_handshake()):
+                simulate_handshake()
+
+            #print(f"Flow Hash: {flow_hash}")
+            #print(f"Bi-directional Packets: {flow_data['bidirectional_packets']}")
+            #print("-------------------------------")
