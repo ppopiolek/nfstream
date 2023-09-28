@@ -20,6 +20,13 @@ class LIVE_PARAMETERS(NFPlugin):
             "bidirectional_packets": flow.bidirectional_packets,
             #PACKET SIZEŚ
             "bidirectional_bytes": flow.bidirectional_bytes,
+
+            #POTRZEBNE DO FAKE HANDSHAKE
+            "src_ip": flow.src_ip,
+            "dst_ip": flow.dst_ip,
+            "src_port": flow.src_port,
+            "dst_port": flow.dst_port,
+            "bidirectional_fin_packets": flow.bidirectional_fin_packets,
             
 
             #ew. pozostałe parametry potrzebne do opracowanych heurystyk
@@ -39,8 +46,7 @@ class LIVE_PARAMETERS(NFPlugin):
                 print(flow_hash)
 
     def on_expire(self, flow):
-        print('flow--')
         flow_hash = flow.__hash__()
         self.live_data.remove(flow_hash)
-        print(f"[DEBUG] Flow expired: {flow_hash}")  # Dodatkowy komunikat debugowy
+        #print(f"[DEBUG] Flow expired: {flow_hash}")  # Dodatkowy komunikat debugowy
 

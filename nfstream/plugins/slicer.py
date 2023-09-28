@@ -22,9 +22,15 @@ class FlowSlicer(NFPlugin):
     This plugin implements a custom flow expiration logic based on a packets count limit.
     """
     def on_init(self, packet, flow):
-        if self.limit == 1:
-            flow.expiration_id = -1
+        #if self.limit == 1:
+        #    flow.expiration_id = -1
+        pass
 
     def on_update(self, packet, flow):
-        if self.limit == flow.bidirectional_packets:
-            flow.expiration_id = -1  # -1 value force expiration
+        #jesli flaga to fin to robimy expire
+        if flow.bidirectional_fin_packets >= self.limit:
+            print(f"[DEBUG] Flow FIN expired: {flow.__hash__}")
+            flow.expiration_id = -1
+
+        #if self.limit == flow.bidirectional_packets:
+        #    flow.expiration_id = -1  # -1 value force expiration
