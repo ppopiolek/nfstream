@@ -1,32 +1,26 @@
-import socket
-import struct
-import os
+import scapy.all as scapy
+import logging
 
-def send_fake_handshake(src_ip, dst_ip, src_port, dst_port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-    s.setsockopt(socket.IPPROTO_IP, socket.IP_HDRINCL, 1)
+def send_fake_handshake(src_ip, dst_ip, src_port, dst_port, interface="en1"):
+    # Pakiet FIN
+    fin = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='F')
+    scapy.sendp(fin, iface=interface)
 
-    # Wypełnienie pakietu losowymi bajtami
-    data = os.urandom(40)  # 40 losowych bajtów
+    # Fałszywa odpowiedź FIN-ACK
+    fin_ack = scapy.Ether() / scapy.IP(src=dst_ip, dst=src_ip) / scapy.TCP(sport=dst_port, dport=src_port, flags='FA')
+    scapy.sendp(fin_ack, iface=interface)
 
-    # Nagłówek TCP dla pakietu SYN
-    tcp_header = struct.pack('!HHLLBBHHH', src_port, dst_port, 0, 0, 80, 2, 5840, 0, 0) + data
+    # Pakiet SYN
+    syn = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='S')
+    scapy.sendp(syn, iface=interface)
 
-    # Nagłówek IP z poprawioną długością całkowitą
-    total_length = 20 + len(tcp_header)
-    ip_header = struct.pack('!BBHHHBBH4s4s', 69, 0, total_length, 54321, 0, 64, socket.IPPROTO_TCP, 0, socket.inet_aton(src_ip), socket.inet_aton(dst_ip))
-    
-    s.sendto(ip_header + tcp_header, (dst_ip, 0))
+    # Fałszywa odpowiedź SYN-ACK
+    syn_ack = scapy.Ether() / scapy.IP(src=dst_ip, dst=src_ip) / scapy.TCP(sport=dst_port, dport=src_port, flags='SA')
+    scapy.sendp(syn_ack, iface=interface)
 
-    # Nagłówek TCP dla fałszywej odpowiedzi SYN-ACK
-    tcp_header_syn_ack = struct.pack('!HHLLBBHHH', dst_port, src_port, 0, 1, 80, 18, 5840, 0, 0) + data
-    s.sendto(ip_header + tcp_header_syn_ack, (src_ip, 0))
-
-    # Nagłówek TCP dla fałszywego pakietu ACK
-    tcp_header_ack = struct.pack('!HHLLBBHHH', src_port, dst_port, 1, 1, 80, 16, 5840, 0, 0) + data
-    s.sendto(ip_header + tcp_header_ack, (dst_ip, 0))
-    
-    s.close()
+    # Fałszywy pakiet ACK
+    ack = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='A')
+    scapy.sendp(ack, iface=interface)
 
 # Test the function
-send_fake_handshake("192.168.1.1", "192.168.1.2", 12345, 80)
+send_fake_handshake("66.220.156.68", "192.168.43.18", 443, 52066)
