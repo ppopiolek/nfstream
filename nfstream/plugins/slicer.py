@@ -13,24 +13,21 @@ If not, see <http://www.gnu.org/licenses/>.
 ------------------------------------------------------------------------------------------------------------------------
 """
 
+# NA RAZIE SLICER JEST WYLACZONY I WSZYSTKO DZIEJE SIE W FAKE_HANDSHAKE
+
 from nfstream import NFPlugin
 
 
 class FlowSlicer(NFPlugin):
     """ FlowSlicer plugin
 
-    This plugin implements a custom flow expiration logic based on a packets count limit.
+    This plugin implements a custom flow expiration logic based on a flow FIN flag count.
     """
     def on_init(self, packet, flow):
-        #if self.limit == 1:
-        #    flow.expiration_id = -1
         pass
 
     def on_update(self, packet, flow):
-        #jesli flaga to fin to robimy expire
-        if flow.bidirectional_fin_packets >= self.limit:
-            print(f"[DEBUG] Flow FIN expired: {flow.__hash__}")
+        if flow.bidirectional_fin_packets >= self.fin_limit:
+            print(f"[DEBUG] Flow FIN expired: {flow.__hash__}") #for testing purposes
             flow.expiration_id = -1
 
-        #if self.limit == flow.bidirectional_packets:
-        #    flow.expiration_id = -1  # -1 value force expiration

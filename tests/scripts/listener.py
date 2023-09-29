@@ -25,7 +25,7 @@ class LiveData:
 
 def streamer_function(live_data):
     print("[INFO] Starting NFStreamer...")
-    streamer = NFStreamer(source=INTERFACE, udps=[plugins.LIVE_PARAMETERS(live_data=live_data), plugins.FlowSlicer(limit=2)], statistical_analysis=True)
+    streamer = NFStreamer(source=INTERFACE, udps=[plugins.LIVE_PARAMETERS(live_data=live_data), plugins.FlowSlicer(fin_limit=2)], statistical_analysis=True)
     for flow in streamer:
         pass
     print("[INFO] NFStreamer has finished processing.")
