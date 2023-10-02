@@ -13,14 +13,25 @@ class FakeHandshake(NFPlugin):
     def on_update(self, packet, flow):
         #if self.handshake_type == 1: - TODO: gdzies tu trzeba bedzie jeszcze uwzglednic typ tego handshake
 
-        #fin expiration policy
-        #if flow.bidirectional_fin_packets >= 2: #'==' a nie '>=' ze wzgledu na wyscigi itp
-        #    flow.expiration_id = -1
-        #    return
+        #Dla pliku NormalCaptures/2017-04-28_normal.pcap:
+        #Mean duration: 13567.875947347427
+        #Mean packets: 13.213668395160218
+        #Mean bytes: 7660.834662943757
+        DURATION = 13567.875947347427
+        PACKETS = 13.213668395160218
+        BYTES = 7660.834662943757
+
+        if (flow.bidirectional_fin_packets >= 2):
+            flow.expiration_id = -1
+
 
         def do_handshake():
-        #TU BEDZIE OSTATECZNIE WYMYSLONY WARUNEK - LOGIKA ROZWIAZANIA
-            return flow.bidirectional_packets >= 8 #na potrzeby testow niech bedzie 10
+
+            packets = flow.bidirectional_packets >= PACKETS - 3 # zaokr. w dol
+            bytes = flow.bidirectional_bytes >= BYTES - 109 # zaokr. w dol
+            duration = flow.bidirectional_duration_ms >= DURATION - 1
+
+            return (((packets + bytes + duration) >= 1) & (flow.vlan_id != 777)) # 777 means flow "logically" expired
         
         
         def send_fake_handshake(src_ip, dst_ip, src_port, dst_port, interface):
@@ -37,21 +48,27 @@ class FakeHandshake(NFPlugin):
             #NA RAZIE POMIJAM ETAP NOWEGO HANDSHAKE I SKUPIAM SIE NA SAMYM FIN - ostatecznie mozna wykorzystac tcpreplay dla szybszego wysylania pakietów w bulk
 
             # Pakiet SYN
-            #syn = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='S')
-            #scapy.sendp(syn, iface=interface)
+            syn = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='S')
+            scapy.sendp(syn, iface=interface)
 
             # Fałszywa odpowiedź SYN-ACK
-            #syn_ack = scapy.Ether() / scapy.IP(src=dst_ip, dst=src_ip) / scapy.TCP(sport=dst_port, dport=src_port, flags='SA')
-            #scapy.sendp(syn_ack, iface=interface)
+            syn_ack = scapy.Ether() / scapy.IP(src=dst_ip, dst=src_ip) / scapy.TCP(sport=dst_port, dport=src_port, flags='SA')
+            scapy.sendp(syn_ack, iface=interface)
 
             # Fałszywy pakiet ACK
-            #ack = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='A')
-            #scapy.sendp(ack, iface=interface)
+            ack = scapy.Ether() / scapy.IP(src=src_ip, dst=dst_ip) / scapy.TCP(sport=src_port, dport=dst_port, flags='A')
+            scapy.sendp(ack, iface=interface)
 
 
         if (do_handshake()):
-            flow.expiration_id = -1 #expiration będzie ustawiany z automatu przy wysylaniu handshake a nie przy sniffowaniu aby uniknac bledow
-            send_fake_handshake(flow.src_ip, flow.dst_ip, flow.src_port, flow.dst_port, self.interface)
+            # TU MUSI BYC JAKIES INFO ZE JEST EXPIRED ZEBY NIE POWTARZAC
+            flow.vlan_id = 777 #expiration będzie ustawiany z automatu przy wysylaniu handshake a nie przy sniffowaniu aby uniknac bledow
+            
+            # policzenie kto bedzie src a kto dst dla fake handshake (jako ze handshake ma najwiekszy stosunkowy wplyw na ilosc pakietow to to bedzie parametr po ktoym bedzie decyzja)
+            if (flow.src2dst_packets > flow.dst2src_packets):
+                send_fake_handshake(flow.dst_ip, flow.src_ip, flow.dst_port, flow.src_port, self.interface)
+            else:
+                send_fake_handshake(flow.src_ip, flow.dst_ip, flow.src_port, flow.dst_port, self.interface)
 
     def on_expire(self, flow):
         print("expired")
